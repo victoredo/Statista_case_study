@@ -213,12 +213,6 @@ False positives are explicitly avoided, even at the cost of coverage.
 - unique on grain-defining columns
 - accepted_values on enumerations
 
-### Singular Tests
-- One row per facility_id and grade_date in entity resolution
-- No fuzzy matches when CCN exists
-- Match confidence aligns with match method
-- Data completeness flags are valid
-
 ---
 
 ## Performance & Cost Controls
