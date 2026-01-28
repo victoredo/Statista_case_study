@@ -140,12 +140,21 @@ models:
           Enables flexible metric aggregation and filtering downstream.
         tests:
           - not_null
+          - accepted_values:
+              values:
+                - safety_grade
+                - infection_score
+                - surgical_problems_score
+                - medication_safety_score
+                - hospital_acquired_infection_rate
+                - fall_injury_rate
+                - data_completeness_pct
 
       - name: metric_value
         description: >
           Numeric value of the normalized Leapfrog metric.
           Represents the metric measurement for a hospital and reporting period.
-
+        
       - name: created_at
         description: >
           Timestamp indicating when the metric record was ingested.
