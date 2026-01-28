@@ -1,0 +1,40 @@
+snowflake:
+  target: "{{ env_var('DBT_TARGET', 'local') }}"
+  meta:
+    base: &base
+      type: snowflake
+      account: statista.eu-west-1
+      client_session_keep_alive: False
+      threads: 8
+
+  outputs:
+    local:
+      <<: *base
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      role: statista_health
+      private_key_path: "{{ env_var('SNOWFLAKE_PRIVATE_KEY_PATH') }}"
+      private_key_passphrase: "{{ env_var('SNOWFLAKE_PRIVATE_KEY_PASSWORD') }}"
+      database: statista_dev
+      warehouse: statista_xsmall_wh
+      schema: "dbt_{{ env_var('SNOWFLAKE_USER') }}"
+
+    ci: &service_account
+      <<: *base
+      user: statista_analytics_dbt_service
+      role: statista_analytics_dbt_role
+      password: "{{ env_var('SNOWFLAKE_SERVICE_ACCOUNT_PASSWORD') }}"
+      database: statista_staging
+      schema: "{{ env_var('DEV_SCHEMA') }}"
+      warehouse: statista_medium_wh
+
+    production: &production_service_account
+      <<: *service_account
+      database: analytics
+      schema: statista_production
+      threads: 8
+
+elementary:
+  outputs:
+    production:
+      <<: *production_service_account
+      schema: bia_elementary

@@ -1,0 +1,8 @@
+packages:
+  - local: statista_projects/domains/health_care
+  - package: dbt-labs/dbt_utils
+    version: 0.9.6
+  - package: elementary-data/elementary
+    version: 0.7.4
+  - package: dbt-labs/dbt_project_evaluator
+    version: [">=0.0.0", "<1.0.0"]

@@ -1,0 +1,172 @@
+version: 2
+
+models:
+
+  - name: fct_leapfrog_safety_grades
+    description: >
+      Fact table containing audit-ready Leapfrog hospital safety grades and
+      component scores, preserved using first-seen semantics from SCD2 snapshots.
+      
+      This table represents the authoritative record used for rankings and
+      publication workflows. Once a safety grade is first observed for a given
+      facility and reporting period, it is never overwritten, even if Leapfrog
+      republishes same period values later.
+      
+      All records inherit conservative entity resolution metadata, ensuring
+      transparent traceability from vendor facility to internal hospital.
+    config:
+      contract:
+        enforced: true
+
+    columns:
+
+      - name: _surrogate_key
+        description: >
+          Deterministic surrogate key identifying a unique Leapfrog facility
+          and reporting period.
+          Used to enforce first-seen semantics and deduplicate snapshot versions.
+        tests:
+          - not_null
+          - unique
+
+      - name: facility_id
+        description: >
+          Leapfrog-assigned facility identifier.
+          Retained for vendor traceability and audit review.
+        tests:
+          - not_null
+
+      - name: hospital_id
+        description: >
+          Internal Statista hospital identifier resolved via entity resolution.
+          May be null for unmatched facilities, which are intentionally excluded
+          from hospital-level rankings.
+        tests:
+          - relationships:
+              to: ref('dim_hospital')
+              field: hospital_id
+
+      - name: cms_provider_number
+        description: >
+          CMS Provider ID (CCN) reported by Leapfrog.
+          Serves as the primary deterministic join key when present.
+
+      - name: facility_name
+        description: >
+          Facility name as reported by Leapfrog at publication time.
+          Preserved for historical auditability.
+
+      - name: address_line_1
+        description: >
+          Street address of the reporting facility.
+          Included for transparency and forensic review.
+
+      - name: city
+        description: >
+          City of the reporting facility.
+        tests:
+          - not_null
+
+      - name: state_code
+        description: >
+          Two-letter US state code of the reporting facility.
+        tests:
+          - not_null
+
+      - name: zip_code
+        description: >
+          ZIP code of the reporting facility.
+
+      - name: match_confidence
+        description: >
+          Confidence score assigned during entity resolution.
+          Enables downstream filtering based on match reliability.
+        tests:
+          - not_null
+
+      - name: match_method
+        description: >
+          Entity resolution method used to link the facility to a hospital.
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - cms_provider_id
+                - jaro_winkler_city_state
+
+      - name: resolution_status
+        description: >
+          Final resolution outcome for the facility-to-hospital mapping.
+          Explicitly surfaces unmatched records to avoid silent data loss.
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - matched_strict
+                - matched_fuzzy
+                - unmatched
+
+      - name: safety_grade
+        description: >
+          Leapfrog overall hospital safety grade for the reporting period.
+          Represents the primary ranking signal.
+        tests:
+          - not_null
+
+      - name: infection_score
+        description: >
+          Component score measuring hospital-acquired infection performance.
+
+      - name: surgical_problems_score
+        description: >
+          Component score reflecting surgical complication and problem rates.
+
+      - name: medication_safety_score
+        description: >
+          Component score evaluating medication safety practices.
+
+      - name: hospital_acquired_infection_rate
+        description: >
+          Rate-based metric capturing hospital-acquired infections.
+
+      - name: fall_injury_rate
+        description: >
+          Rate-based metric representing patient fall-related injuries.
+
+      - name: data_completeness_pct
+        description: >
+          Percentage indicating completeness of Leapfrog reporting for the facility.
+          Used to enforce inclusion thresholds in rankings.
+        tests:
+          - not_null
+
+      - name: created_at
+        description: >
+          Timestamp when the Leapfrog record was ingested into the platform.
+          Drives incremental processing and snapshot versioning.
+        tests:
+          - not_null
+
+      - name: measurement_period_start
+        description: >
+          Start date of the Leapfrog publication period.
+          Anchors the safety grade in time for longitudinal analysis.
+        tests:
+          - not_null
+
+      - name: dbt_updated_at
+        description: >
+          Timestamp when the snapshot record was last updated by dbt.
+          Included for lineage and audit inspection.
+
+      - name: dbt_valid_from
+        description: >
+          Snapshot validity start timestamp.
+          Used to identify the first-seen published value.
+        tests:
+          - not_null
+
+      - name: dbt_valid_to
+        description: >
+          Snapshot validity end timestamp.
+          Null indicates the currently active snapshot version.

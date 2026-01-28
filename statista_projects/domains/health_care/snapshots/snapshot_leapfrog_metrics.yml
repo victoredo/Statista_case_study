@@ -1,0 +1,9 @@
+snapshots:
+  - name: snapshot_leapfrog_metrics
+    relation: ref("int_leapfrog_unpivoted_metrics")
+    config:
+      schema: snapshots
+      unique_key: _surrogate_key
+      strategy: check
+      check_cols: all
+    

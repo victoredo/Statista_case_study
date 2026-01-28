@@ -1,0 +1,117 @@
+semantic_models:
+  - name: leapfrog_safety_grades
+    description: |
+      Fact table containing Leapfrog hospital safety grades and related
+      patient safety metrics. Grain is one row per hospital per
+      measurement period.
+
+    model: ref('fct_leapfrog_safety_grades')
+
+    defaults:
+      agg_time_dimension: measurement_period_start
+
+    entities:
+      - name: hospital
+        type: primary
+        expr: hospital_id
+
+      - name: facility
+        type: foreign
+        expr: facility_id
+
+    dimensions:
+      - name: measurement_period_start
+        type: time
+        expr: measurement_period_start
+        type_params:
+          time_granularity: month
+
+      - name: state
+        type: categorical
+        expr: state_code
+
+      - name: city
+        type: categorical
+
+      - name: safety_grade
+        description: Letter or numeric safety grade assigned by Leapfrog.
+        type: categorical
+
+      - name: resolution_status
+        type: categorical
+
+      - name: match_confidence
+        type: categorical
+
+    measures:
+      - name: hospital_count
+        description: Count of hospitals with Leapfrog safety data.
+        expr: 1
+        agg: sum
+
+      - name: avg_infection_score
+        description: Average hospital infection score.
+        expr: infection_score
+        agg: avg
+
+      - name: avg_surgical_problems_score
+        description: Average surgical problems score.
+        expr: surgical_problems_score
+        agg: avg
+
+      - name: avg_medication_safety_score
+        description: Average medication safety score.
+        expr: medication_safety_score
+        agg: avg
+
+      - name: avg_hai_rate
+        description: Average hospital-acquired infection rate.
+        expr: hospital_acquired_infection_rate
+        agg: avg
+
+      - name: avg_fall_injury_rate
+        description: Average patient fall injury rate.
+        expr: fall_injury_rate
+        agg: avg
+
+      - name: avg_data_completeness_pct
+        description: Average completeness percentage of reported safety data.
+        expr: data_completeness_pct
+        agg: avg
+metrics:
+  - name: hospitals_reported
+    description: Number of hospitals with reported Leapfrog safety grades.
+    label: Hospitals Reported
+    type: simple
+    type_params:
+      measure: hospital_count
+
+  - name: average_infection_score
+    description: Average infection score across hospitals.
+    label: Avg Infection Score
+    type: simple
+    type_params:
+      measure: avg_infection_score
+
+  - name: average_hai_rate
+    description: Average hospital-acquired infection rate.
+    label: Avg HAI Rate
+    type: simple
+    type_params:
+      measure: avg_hai_rate
+
+  - name: average_fall_injury_rate
+    description: Average patient fall injury rate.
+    label: Avg Fall Injury Rate
+    type: simple
+    type_params:
+      measure: avg_fall_injury_rate
+
+  - name: high_data_quality_hospitals
+    description: Hospitals with high data completeness (>90%).
+    label: High Data Quality Hospitals
+    type: simple
+    type_params:
+      measure: hospital_count
+    filter: |
+      {{ Dimension('hospital__data_completeness_pct') }} >= 90

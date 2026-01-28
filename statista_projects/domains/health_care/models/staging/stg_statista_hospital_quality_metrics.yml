@@ -1,0 +1,90 @@
+version: 2
+
+models:
+
+  - name: stg_statista_hospital_quality_metrics
+    description: >
+      Staging model for Statista’s internal hospital quality metrics.
+      Standardizes raw metric attributes (source, category, name, value),
+      casts fields to consistent types, and generates an internal surrogate key.
+      Serves as the unified foundation for all downstream metric logic, including
+      the multi-vendor unified quality metrics mart.
+
+    columns:
+
+      - name: _surrogate_key
+        description: >
+          Deterministic surrogate key generated from (metric_id, hospital_id, created_at).
+          Ensures uniqueness at the metric-record level and supports incremental ingestion.
+        tests:
+          - not_null
+          - unique
+
+      - name: metric_id
+        description: >
+          Unique identifier for the quality metric as provided by the internal
+          Statista source system. Combined with hospital_id and created_at,
+          defines the metric grain.
+        tests:
+          - not_null
+
+      - name: hospital_id
+        description: >
+          Internal hospital identifier referencing the Statista hospital master.
+          Used to join quality metrics to the hospital dimension.
+        tests:
+          - not_null
+
+      - name: metric_source
+        description: >
+          Origin of the metric (e.g. INTERNAL, CMS, LEAPFROG, SURVEY).
+          Enables downstream filtering, vendor comparison, and unified metric modeling.
+        tests:
+          - not_null
+
+      - name: metric_category
+        description: >
+          High-level classification of the metric (e.g. SAFETY, QUALITY, EFFICIENCY).
+          Used to group metrics consistently across vendors and reporting layers.
+        tests:
+          - not_null
+
+      - name: metric_name
+        description: >
+          Human-readable name of the quality metric.
+          Represents the semantic meaning of the measurement.
+        tests:
+          - not_null
+
+      - name: data_quality_flag
+        description: >
+          Indicator describing the quality or completeness of the metric value
+          (e.g. COMPLETE, INCOMPLETE, ESTIMATED).
+          Used to enforce transparency and downstream exclusion rules where required.
+        tests:
+          - accepted_values:
+              values: ['COMPLETE', 'INCOMPLETE', 'ESTIMATED', 'UNKNOWN']
+
+      - name: metric_value
+        description: >
+          Numeric value of the quality metric after standardization.
+          Represents the measured outcome or score associated with the metric.
+        tests:
+          - not_null
+
+      - name: created_at
+        description: >
+          Timestamp indicating when the metric record was created or ingested
+          in the source system. Used for incremental processing and auditability.
+        tests:
+          - not_null
+
+      - name: measurement_period_start
+        description: >
+          Start timestamp of the measurement period that the metric value represents.
+          Enables period-based filtering and longitudinal analysis.
+
+      - name: measurement_period_end
+        description: >
+          End timestamp of the measurement period that the metric value represents.
+          Complements measurement_period_start to define the reporting window.

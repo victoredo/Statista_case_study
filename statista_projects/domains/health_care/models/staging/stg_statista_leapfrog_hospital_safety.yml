@@ -1,0 +1,122 @@
+version: 2
+
+models:
+
+  - name: stg_statista_leapfrog_hospital_safety
+    description: >
+      Staging model for Leapfrog Hospital Safety Grade data.
+      Standardizes raw Leapfrog facility attributes, safety grades, and
+      component safety scores while preserving vendor semantics.
+      This model performs no entity resolution and serves as the
+      canonical raw-vendor representation for downstream healthcare
+      domain transformations.
+
+    columns:
+
+      - name: _surrogate_key
+        description: >
+          Deterministic surrogate key generated from
+          (facility_id, cms_provider_number, grade_date).
+          Ensures uniqueness at the Leapfrog facility-grade snapshot level
+          and supports incremental ingestion and auditability.
+        tests:
+          - not_null
+          - unique
+
+      - name: facility_id
+        description: >
+          Leapfrog-assigned identifier representing a reporting facility.
+          This identifier is vendor-specific and may not directly align
+          with Statista internal hospital identifiers.
+        tests:
+          - not_null
+
+      - name: cms_provider_number
+        description: >
+          CMS Provider ID (CCN) reported by Leapfrog, representing the
+          Medicare-certified hospital entity.
+          Serves as the primary deterministic join key for downstream
+          entity resolution.
+
+      - name: facility_name
+        description: >
+          Facility name as reported by Leapfrog.
+          Used for human-readable context and as a secondary input
+          for fuzzy entity resolution when CMS Provider ID is missing.
+
+      - name: address_line_1
+        description: >
+          Street address of the reporting facility as provided by Leapfrog.
+          Used for validation and geographic context only.
+
+      - name: city
+        description: >
+          City in which the reporting facility is located.
+          Used as a constraint in downstream fuzzy entity resolution.
+
+      - name: state_code
+        description: >
+          Two-letter US state code for the reporting facility.
+          Must match exactly during fallback entity resolution.
+        tests:
+          - not_null
+
+      - name: zip_code
+        description: >
+          ZIP code of the reporting facility.
+          Retained for reference and potential geographic validation.
+
+      - name: safety_grade
+        description: >
+          Leapfrog overall hospital safety grade.
+          Represents the primary published outcome used in rankings
+          and public reporting.
+
+      - name: infection_score
+        description: >
+          Component score representing infection-related patient safety
+          outcomes as defined by Leapfrog methodology.
+
+      - name: surgical_problems_score
+        description: >
+          Component score reflecting surgical safety and complication risks
+          as defined by Leapfrog.
+
+      - name: medication_safety_score
+        description: >
+          Component score measuring medication safety practices
+          and outcomes according to Leapfrog standards.
+
+      - name: hospital_acquired_infection_rate
+        description: >
+          Rate-based metric capturing hospital-acquired infection outcomes.
+          Used for deeper analytical drill-downs beyond overall grades.
+
+      - name: fall_injury_rate
+        description: >
+          Rate of patient falls resulting in injury.
+          Retained as a granular safety indicator for longitudinal analysis.
+
+      - name: data_completeness_pct
+        description: >
+          Percentage indicating how complete the underlying Leapfrog
+          reporting data is for the facility and reporting period.
+          Used downstream to flag partial or excluded records.
+        tests:
+          - not_null
+
+      - name: created_at
+        description: >
+          Timestamp indicating when the Leapfrog record was loaded
+          into the Statista platform.
+          Used for incremental processing and audit lineage.
+        tests:
+          - not_null
+
+      - name: measurement_period_start
+        description: >
+          Effective start date of the Leapfrog reporting period
+          (grade publication window).
+          Serves as the temporal anchor for snapshots and historical analysis.
+        tests:
+          - not_null

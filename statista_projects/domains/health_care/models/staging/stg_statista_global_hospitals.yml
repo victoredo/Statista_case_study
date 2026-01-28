@@ -1,0 +1,89 @@
+version: 2
+
+models:
+
+  - name: stg_statista_global_hospitals
+    description: >
+      Staging model for Statista’s global hospital master. 
+      Standardizes raw hospital data from the statista_global.hospitals source,
+      applies consistent casing and typing, and generates an internal surrogate key.
+      This table serves as the "golden master hospital dimension" foundation for all
+      entity resolution across Leapfrog, CMS, AHRQ, Vizient, and future vendors.
+
+    columns:
+      - name: _surrogate_key
+        description: >
+          Deterministic unique key generated from (hospital_id, cms_provider_id, created_at)
+          to support incremental ingestion and entity tracking.
+        tests:
+          - not_null
+          - unique
+
+      - name: hospital_id
+        description: >
+          Internal hospital identifier provided by Statista. Not globally unique across vendors,
+          but unique within the hospital master dataset. Used for downstream fact table joins.
+        tests:
+          - not_null
+
+      - name: cms_provider_id
+        description: >
+          CMS Certification Number (CCN). 
+          Authoritative national identifier for U.S. hospitals.
+          Required for strict, high-confidence entity resolution with external datasets.
+        tests:
+          - not_null
+
+      - name: hospital_name
+        description: >
+          Canonical hospital name used across Statista datasets. 
+          Normalized string field to support fuzzy matching (fallback only).
+        tests:
+          - not_null
+
+      - name: npi_number
+        description: >
+          National Provider Identifier (NPI) associated with the hospital
+          or healthcare facility. May be null for some systems.
+
+      - name: country_code
+        description: >
+          Two-character ISO country code indicating the country where the
+          hospital is located.
+
+      - name: state_code
+        description: >
+          State or region code (for U.S. hospitals, 2-letter USPS state code).
+          Used for fuzzy entity resolution when CCN is missing.
+
+      - name: city
+        description: >
+          Hospital city. Must be paired with state_code for geo matching.
+
+      - name: hospital_type
+        description: >
+          Classification of hospital (e.g., 'Acute Care', 'Children’s Hospital', etc.).
+
+      - name: teaching_status
+        description: >
+          Indicates whether the hospital is a teaching hospital.
+          Used downstream for dim_hospital enhancements.
+
+      - name: bed_count
+        description: >
+          Reported number of available beds. Used to derive hospital size category.
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+              severity: warn
+
+      - name: created_at
+        description: >
+          Timestamp when the record was first created in the source system.
+        tests:
+          - not_null
+
+      - name: updated_at
+        description: >
+          Timestamp of the most recent update to the hospital record.

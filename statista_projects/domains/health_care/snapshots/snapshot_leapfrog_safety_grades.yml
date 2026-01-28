@@ -1,0 +1,9 @@
+snapshots:
+  - name: snapshot_leapfrog_safety_grades
+    relation: ref("int_leapfrog_entity_resolution")
+    config:
+      schema: snapshots
+      unique_key: _surrogate_key
+      strategy: check
+      check_cols: all
+    

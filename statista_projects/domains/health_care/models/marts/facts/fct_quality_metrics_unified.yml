@@ -1,0 +1,83 @@
+version: 2
+
+models:
+  - name: fct_quality_metrics_unified
+    description: >
+      Unified fact table containing hospital quality and safety metrics across
+      multiple external vendors (e.g. Leapfrog, Statista). This model standardizes
+      metric structure to enable cross-vendor comparison, analytics, and downstream
+      healthcare reporting.
+
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: _surrogate_key
+        description: >
+          Deterministic surrogate key representing a unique hospital entity
+          for a given measurement period.
+        tests:
+          - not_null
+
+      - name: metric_id
+        description: >
+          Unique identifier for a specific metric at the hospital and
+          measurement-period level.
+        tests:
+          - not_null
+          - unique
+
+      - name: hospital_id
+        description: >
+          Internal canonical hospital identifier resolved across vendors.
+        tests:
+          - not_null
+
+      - name: metric_source
+        description: >
+          Source system or vendor providing the metric
+          (e.g. LEAPFROG, STATISTA).
+        tests:
+          - not_null
+
+      - name: metric_category
+        description: >
+          High-level classification of the metric
+          (e.g. PATIENT_SAFETY, QUALITY, OUTCOMES).
+        tests:
+          - not_null
+
+      - name: metric_name
+        description: >
+          Standardized metric name after vendor normalization.
+        tests:
+          - not_null
+
+      - name: metric_value
+        description: >
+          Numeric value of the metric after casting and normalization.
+        tests:
+          - not_null
+
+      - name: measurement_period_start
+        description: >
+          Start timestamp of the period the metric applies to.
+        tests:
+          - not_null
+
+      - name: measurement_period_end
+        description: >
+          End timestamp of the measurement period, if provided by the vendor.
+
+      - name: data_quality_flag
+        description: >
+          Indicator used to flag known data quality issues,
+          missing values, or vendor-specific limitations.
+
+      - name: created_at
+        description: >
+          Timestamp indicating when the metric record was ingested
+          into the warehouse.
+        tests:
+          - not_null

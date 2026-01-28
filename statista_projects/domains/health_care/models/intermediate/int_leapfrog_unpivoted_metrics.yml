@@ -1,0 +1,161 @@
+version: 2
+
+models:
+
+  - name: int_leapfrog_unpivoted_metrics
+    description: >
+      Intermediate model that normalizes Leapfrog hospital safety measures
+      from a wide, vendor-specific schema into a long, metric-oriented format.
+      
+      This model unpivots individual Leapfrog safety scores into one row per
+      (hospital, metric, reporting period), enabling:
+         Consistent downstream aggregation
+         Vendor-agnostic metric modeling
+         Seamless integration into the unified quality metrics mart
+    
+
+    columns:
+
+      - name: _surrogate_key
+        description: >
+          Deterministic surrogate key representing a unique Leapfrog facility
+          and reporting period after normalization.
+          Used as the grain for incremental processing and downstream snapshots.
+        tests:
+          - not_null
+          - unique
+
+      - name: metric_id
+        description: >
+          Deterministic identifier for a specific metric observation.
+          Generated from (facility_id, cms_provider_number, measurement_period_start, metric_name).
+          Serves as the primary key for normalized Leapfrog metrics.
+        tests:
+          - not_null
+          - unique
+
+      - name: facility_id
+        description: >
+          Leapfrog-assigned facility identifier.
+          Preserved for vendor-level traceability.
+        tests:
+          - not_null
+
+      - name: hospital_id
+        description: >
+          Internal Statista hospital identifier resolved via entity resolution.
+          Null values indicate unmatched facilities that remain intentionally excluded
+          from hospital-level analytics.
+        tests:
+          - relationships:
+              to: ref('stg_statista_global_hospitals')
+              field: hospital_id
+
+      - name: cms_provider_number
+        description: >
+          CMS Provider ID (CCN) reported by Leapfrog.
+          Included for auditability and validation, but not required for all records.
+
+      - name: facility_name
+        description: >
+          Leapfrog facility name, retained for transparency and audit inspection.
+
+      - name: address_line_1
+        description: >
+          Street address of the Leapfrog facility.
+          Retained for traceability only.
+
+      - name: city
+        description: >
+          City of the reporting facility.
+        tests:
+          - not_null
+
+      - name: state_code
+        description: >
+          Two-letter US state code of the reporting facility.
+        tests:
+          - not_null
+
+      - name: zip_code
+        description: >
+          ZIP code of the reporting facility.
+
+      - name: match_confidence
+        description: >
+          Confidence score inherited from entity resolution.
+          Indicates the trust level of the hospital mapping associated
+          with this metric record.
+        tests:
+          - not_null
+
+      - name: match_method
+        description: >
+          Entity resolution method applied to link the facility to a hospital.
+          Enables downstream consumers to filter metrics by match quality.
+        tests:
+          - accepted_values:
+              values:
+                - cms_provider_id
+                - jaro_winkler_city_state
+
+      - name: resolution_status
+        description: >
+          Resolution outcome describing whether the metric was
+          strictly matched, fuzzily matched, or left unmatched.
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - matched_strict
+                - matched_fuzzy
+                - unmatched
+
+      - name: metric_source
+        description: >
+          Identifier of the metric vendor.
+          Hardcoded to 'LEAPFROG' to enable multi-vendor integration
+          within the unified quality metrics mart.
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - LEAPFROG
+
+      - name: metric_category
+        description: >
+          High-level classification of the metric.
+          For Leapfrog metrics, this is standardized as 'PATIENT_SAFETY'
+          to ensure cross-vendor comparability.
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - PATIENT_SAFETY
+
+      - name: metric_name
+        description: >
+          Name of the normalized Leapfrog metric derived during unpivoting
+          (e.g., infection_score, fall_injury_rate).
+          Enables flexible metric aggregation and filtering downstream.
+        tests:
+          - not_null
+
+      - name: metric_value
+        description: >
+          Numeric value of the normalized Leapfrog metric.
+          Represents the metric measurement for a hospital and reporting period.
+
+      - name: created_at
+        description: >
+          Timestamp indicating when the metric record was ingested.
+          Used to support incremental processing and snapshot versioning.
+        tests:
+          - not_null
+
+      - name: measurement_period_start
+        description: >
+          Start date of the Leapfrog reporting period associated with this metric.
+          Serves as the temporal anchor for longitudinal analysis.
+        tests:
+          - not_null

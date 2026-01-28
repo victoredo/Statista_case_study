@@ -1,0 +1,40 @@
+version: 2
+
+sources:
+  - name: statista_global
+    description: All statista internal source
+    schema: ol
+    database: bronze_production
+    loaded_at_field: create_at
+    meta:
+      owner: "@statistahealth_analytics"
+    tables:
+      - name: hospitals
+        description: Hospital master entity (raw object layer)
+        freshness:
+          warn_after:
+            count: 1
+            period: day
+
+      - name: hospital_quality_metrics
+        description: Internal Statista hospital quality metrics.
+        freshness:
+          warn_after:
+            count: 1
+            period: day
+
+
+  - name: leapfrog_external
+    description: Apple search ads data loaded by dlt
+    database: bronze_production
+    schema: dl_leapfrog
+    loaded_at_field: loaded_at
+    meta:
+      owner: "@ria"
+    tables:
+      - name: hospital_safety_grades
+        description: Raw Leapfrog hospital safety grades and component metrics feed
+        freshness:
+          warn_after:
+            count: 1
+            period: day

@@ -1,0 +1,171 @@
+version: 2
+
+models:
+
+  - name: int_leapfrog_entity_resolution
+    description: >
+      Intermediate model responsible for resolving Leapfrog vendor facilities
+      to Statista’s internal hospital entities.
+      
+      This model applies a conservative, deterministic entity resolution policy
+      that prioritizes accuracy and auditability over match coverage.
+      Each Leapfrog record is resolved to at most one internal hospital using
+      a strict priority order:
+        1) CMS Provider ID (CCN) exact match
+        2) Fallback fuzzy name match with exact city and state
+        3) Unmatched
+      
+      The output explicitly exposes match method, confidence, and resolution
+      status to ensure full transparency for downstream analytics, rankings,
+      and governance workflows.
+
+    columns:
+
+      - name: _surrogate_key
+        description: >
+          Deterministic surrogate key inherited from the staging layer,
+          representing a unique Leapfrog facility and reporting period.
+          Serves as the grain for entity resolution and downstream snapshots.
+        tests:
+          - not_null
+          - unique
+
+      - name: facility_id
+        description: >
+          Leapfrog-assigned facility identifier.
+          Used to track vendor-specific reporting across time.
+        tests:
+          - not_null
+
+      - name: hospital_id
+        description: >
+          Internal Statista hospital identifier resolved through entity
+          resolution logic.
+          Null values indicate records that could not be safely matched.
+        tests:
+          - relationships:
+              to: ref('stg_statista_global_hospitals')
+              field: hospital_id
+
+      - name: cms_provider_number
+        description: >
+          CMS Provider ID (CCN) as reported by Leapfrog.
+          Primary deterministic key for strict entity resolution.
+          Presence of this value suppresses all fuzzy matching logic.
+
+      - name: facility_name
+        description: >
+          Leapfrog-reported facility name.
+          Used for display and as an input to fuzzy matching when CCN is missing.
+
+      - name: address_line_1
+        description: >
+          Street address of the Leapfrog facility.
+          Retained for traceability and audit inspection only.
+
+      - name: city
+        description: >
+          City of the reporting facility.
+          Must match exactly during fallback fuzzy entity resolution.
+        tests:
+          - not_null
+
+      - name: state_code
+        description: >
+          Two-letter US state code of the reporting facility.
+          Must match exactly during fallback fuzzy entity resolution.
+        tests:
+          - not_null
+
+      - name: zip_code
+        description: >
+          ZIP code of the reporting facility.
+          Retained for contextual reference and validation.
+
+      - name: match_confidence
+        description: >
+          Numeric indicator representing confidence in the resolved match.
+          Values are policy-driven rather than probabilistic:
+            • 1.0 → strict CCN match
+            • 0.6 → fallback fuzzy match
+            • 0.0 → unmatched
+          Enables transparent filtering and trust-based consumption downstream.
+        tests:
+          - not_null
+
+      - name: match_method
+        description: >
+          Resolution method used to link the Leapfrog facility to a Statista
+          hospital entity.
+          Possible values include:
+            • 'cms_provider_id'
+            • 'jaro_winkler_city_state'
+            • null (unmatched)
+        tests:
+          - accepted_values:
+              values:
+                - cms_provider_id
+                - jaro_winkler_city_state
+
+      - name: resolution_status
+        description: >
+          Categorical resolution outcome describing how the record was handled.
+          Used for auditability and downstream exclusion logic.
+          Possible values:
+            • matched_strict
+            • matched_fuzzy
+            • unmatched
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - matched_strict
+                - matched_fuzzy
+                - unmatched
+
+      - name: safety_grade
+        description: >
+          Leapfrog overall hospital safety grade associated with the resolved
+          facility and reporting period.
+
+      - name: infection_score
+        description: >
+          Component safety score representing infection-related outcomes.
+
+      - name: surgical_problems_score
+        description: >
+          Component safety score reflecting surgical complication risk.
+
+      - name: medication_safety_score
+        description: >
+          Component score measuring medication safety performance.
+
+      - name: hospital_acquired_infection_rate
+        description: >
+          Rate-based metric capturing hospital-acquired infection outcomes.
+
+      - name: fall_injury_rate
+        description: >
+          Rate of patient falls resulting in injury.
+
+      - name: data_completeness_pct
+        description: >
+          Percentage completeness of the underlying Leapfrog data submission.
+          Used downstream to flag partial reporting and control ranking inclusion.
+        tests:
+          - not_null
+
+      - name: created_at
+        description: >
+          Timestamp representing when the Leapfrog record was ingested
+          into the Statista platform.
+          Drives incremental processing and snapshot versioning.
+        tests:
+          - not_null
+
+      - name: measurement_period_start
+        description: >
+          Effective start date of the Leapfrog reporting period.
+          Serves as the temporal anchor for historical analysis and snapshots.
+        tests:
+          - not_null
