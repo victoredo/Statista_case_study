@@ -55,8 +55,8 @@ formatted AS (
         match_method,
         resolution_status,
         -- Static values for vendor identity
-        'LEAPFROG' as metric_source,
-        'PATIENT_SAFETY' as metric_category,
+        'LEAPFROG' AS metric_source,
+        'PATIENT_SAFETY' AS metric_category,
 
         -- Measures
         metric_name,
