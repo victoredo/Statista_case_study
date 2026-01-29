@@ -169,8 +169,6 @@ Facts:
 
 Maintaining high data quality and monitoring the health of a data pipeline are critical to ensuring that downstream analyses and decisions are based on reliable information. In this project, Elementary and dbt Project Evaluator can used to implement data testing and provide robust data observability across the pipeline.
 
-##  Data Testing with Elementary
-Elementary provides continuous data quality monitoring across the entire data pipeline. By integrating Elementary into the dbt project, we ensure that all key tables and models are monitored for data anomalies, inconsistencies, and performance degradation.
 
 ## Observability with Elementary
 Elementary extends beyond traditional data testing by offering real-time data observability.
