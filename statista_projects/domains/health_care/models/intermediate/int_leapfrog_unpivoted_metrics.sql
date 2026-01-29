@@ -51,7 +51,8 @@ formatted AS (
         state_code,
         city,
         zip_code,
-        match_confidence,
+        --Using the match confidence derived column as data_qualifty flag
+        match_confidence AS data_quality_flag, 
         match_method,
         resolution_status,
         -- Static values for vendor identity
