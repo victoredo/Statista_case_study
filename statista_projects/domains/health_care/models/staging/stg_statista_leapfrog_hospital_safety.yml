@@ -31,7 +31,7 @@ models:
         tests:
           - not_null
 
-      - name: cms_provider_number
+      - name: cms_provider_id
         description: >
           CMS Provider ID (CCN) reported by Leapfrog, representing the
           Medicare-certified hospital entity.

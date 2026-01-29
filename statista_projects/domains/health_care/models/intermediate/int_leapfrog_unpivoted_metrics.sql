@@ -39,11 +39,11 @@ WITH unpivoted AS (
 formatted AS (
 
     SELECT 
-        {{ dbt_utils.generate_surrogate_key(['facility_id','cms_provider_number',grade_date']) }} AS _surrogate_key,
-        {{ dbt_utils.generate_surrogate_key(['facility_id','cms_provider_number',grade_date','metric_name']) }} AS metric_id,
+        {{ dbt_utils.generate_surrogate_key(['facility_id','cms_provider_id',grade_date']) }} AS _surrogate_key,
+        {{ dbt_utils.generate_surrogate_key(['facility_id','cms_provider_id',grade_date','metric_name']) }} AS metric_id,
         facility_id,
         hospital_id,
-        cms_provider_number,
+        cms_provider_id,
     
         -- Details
         facility_name,

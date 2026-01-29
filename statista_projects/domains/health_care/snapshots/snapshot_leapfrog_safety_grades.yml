@@ -1,6 +1,7 @@
 snapshots:
   - name: snapshot_leapfrog_safety_grades
     relation: ref("int_leapfrog_entity_resolution")
+    description: Snapshot of Leapfrog hospital safety grades after entity resolution, ensuring historical grades remain stable for rankings and reporting.
     config:
       schema: snapshots
       unique_key: _surrogate_key

@@ -46,7 +46,7 @@ models:
               to: ref('dim_hospital')
               field: hospital_id
 
-      - name: cms_provider_number
+      - name: cms_provider_id
         description: >
           CMS Provider ID (CCN) reported by Leapfrog.
           Serves as the primary deterministic join key when present.

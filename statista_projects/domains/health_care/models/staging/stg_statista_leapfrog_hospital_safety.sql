@@ -24,7 +24,7 @@ formatted AS (
         -- FK
         {{ dbt_utils.generate_surrogate_key(['facility_id','cms_provider_number',grade_date']) }} AS _surrogate_key,
         CAST(facility_id AS STRING) AS facility_id,
-        CAST(cms_provider_number AS STRING) AS cms_provider_number,
+        CAST(cms_provider_number AS STRING) AS cms_provider_id,
     
         -- Details
         CAST(facility_name AS STRING) AS facility_name,

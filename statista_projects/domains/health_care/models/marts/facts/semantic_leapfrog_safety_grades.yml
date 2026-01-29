@@ -11,8 +11,12 @@ semantic_models:
       agg_time_dimension: measurement_period_start
 
     entities:
+      - name: _surrogate_key
+        type: foreign
+        expr: _surrogate_key
+
       - name: hospital
-        type: primary
+        type: foreign
         expr: hospital_id
 
       - name: facility

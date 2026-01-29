@@ -51,7 +51,7 @@ models:
               to: ref('stg_statista_global_hospitals')
               field: hospital_id
 
-      - name: cms_provider_number
+      - name: cms_provider_id
         description: >
           CMS Provider ID (CCN) reported by Leapfrog.
           Included for auditability and validation, but not required for all records.

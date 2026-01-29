@@ -1,6 +1,7 @@
 snapshots:
   - name: snapshot_leapfrog_metrics
     relation: ref("int_leapfrog_unpivoted_metrics")
+    description: Snapshot of unpivoted Leapfrog hospital safety metrics used to preserve historical metric values for reproducible analysis and auditing.
     config:
       schema: snapshots
       unique_key: _surrogate_key

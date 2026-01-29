@@ -44,7 +44,7 @@ resolved_candidates AS (
         CASE WHEN statista_master_hospitals.hospital_id IS NOT NULL THEN 'matched_strict'  END AS resolution_status
     FROM leapfrog_grade
     LEFT JOIN MASTER statista_master_hospitals
-        ON leapfrog_grade.cms_provider_number = statista_master_hospitals.cms_provider_id
+        ON leapfrog_grade.cms_provider_id = statista_master_hospitals.cms_provider_id
 
 
     UNION ALL
@@ -106,7 +106,7 @@ formatted AS (
         _surrogate_key,
         facility_id,
         hospital_id,
-        cms_provider_number,
+        cms_provider_id,
     
         -- Details
         facility_name,

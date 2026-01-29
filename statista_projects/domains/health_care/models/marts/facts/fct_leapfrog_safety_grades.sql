@@ -29,7 +29,7 @@ formatted AS (
         _surrogate_key,
         facility_id,
         hospital_id,
-        cms_provider_number,
+        cms_provider_id,
     
         -- Details
         facility_name,

@@ -47,7 +47,7 @@ models:
               to: ref('stg_statista_global_hospitals')
               field: hospital_id
 
-      - name: cms_provider_number
+      - name: cms_provider_id
         description: >
           CMS Provider ID (CCN) as reported by Leapfrog.
           Primary deterministic key for strict entity resolution.
