@@ -2,13 +2,16 @@ version: 2
 
 models:
 
-  - name: stg_statista_global_hospitals
+  - name: dim_hospitals
     description: >
-      Staging model for Statista’s global hospital master. 
-      Standardizes raw hospital data from the statista_global.hospitals source,
+      dimension model for Statista’s global hospital master. 
+      Standardizes hospital data from the statista_global.hospitals source,
       applies consistent casing and typing, and generates an internal surrogate key.
       This table serves as the "golden master hospital dimension" foundation for all
       entity resolution across Leapfrog and future vendors.
+    config:
+      contract:
+        enforced: true
 
     columns:
       - name: _surrogate_key

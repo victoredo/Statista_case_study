@@ -120,6 +120,7 @@ erDiagram
   }
 
   fct_leapfrog_safety_grades {
+    string cms_provider_id FK
     string facility_id
     string hospital_id FK
     date grade_date
