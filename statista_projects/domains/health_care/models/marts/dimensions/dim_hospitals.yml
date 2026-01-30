@@ -12,6 +12,8 @@ models:
     config:
       contract:
         enforced: true
+      meta:
+        owner: "@statistahealth_analytics"
 
     columns:
       - name: _surrogate_key
