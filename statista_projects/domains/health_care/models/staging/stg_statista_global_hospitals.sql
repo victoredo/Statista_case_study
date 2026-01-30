@@ -21,7 +21,7 @@ WITH source_data AS (
 formatted AS (
 
     SELECT
-        -- FK
+        -- Pk/FK
         {{ dbt_utils.generate_surrogate_key(['hospital_id', 'cms_provider_id','created_at']) }} AS _surrogate_key,
         CAST(hospital_id AS STRING) AS hospital_id,
         CAST(cms_provider_id AS STRING) AS cms_provider_id,

@@ -1,0 +1,10 @@
+snapshots:
+  - name: snapshot_leapfrog_metrics
+    relation: ref("stg_statista_global_hospitals")
+    description: Snapshot of hospital master entity
+    config:
+      schema: snapshots
+      unique_key: _surrogate_key
+      strategy: check
+      check_cols: all
+    
