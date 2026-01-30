@@ -1,5 +1,7 @@
 packages:
   - local: statista_projects/domains/health_care
+  - local: statista_projects/domains/finance
+  - local: statista_projects/domains/product
   - package: dbt-labs/dbt_utils
     version: 0.9.6
   - package: elementary-data/elementary
