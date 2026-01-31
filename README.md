@@ -148,9 +148,9 @@ Facts:
 ## Materialization Strategy
 
 - Staging models use views
-- Intermediate models use views
+- Intermediate models use incremental 
 - Snapshot models use SCD2
-- Mart models use tables
+- Mart models use incremental 
 
 ---
 
