@@ -105,8 +105,7 @@ models:
           - accepted_values:
               values:
                 - matched_strict
-                - matched_fuzzy
-                - unmatched
+                - conversative_matched
 
       - name: safety_grade
         description: >

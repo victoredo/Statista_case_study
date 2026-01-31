@@ -86,9 +86,9 @@ models:
         description: >
           Numeric indicator representing confidence in the resolved match.
           Values are policy-driven rather than probabilistic:
-            • 1.0 → strict CCN match
-            • 0.6 → fallback fuzzy match
-            • 0.0 → unmatched
+            • 1.0  strict CCN match
+            • 0.6 fallback conversative match
+            
           Enables transparent filtering and trust-based consumption downstream.
         tests:
           - not_null
@@ -98,9 +98,9 @@ models:
           Resolution method used to link the Leapfrog facility to a Statista
           hospital entity.
           Possible values include:
-            • 'cms_provider_id'
-            • 'jaro_winkler_city_state'
-            • null (unmatched)
+             'cms_provider_id'
+             'jaro_winkler_city_state'
+            
         tests:
           - accepted_values:
               values:
@@ -112,16 +112,15 @@ models:
           Categorical resolution outcome describing how the record was handled.
           Used for auditability and downstream exclusion logic.
           Possible values:
-            • matched_strict
-            • matched_fuzzy
-            • unmatched
+             matched_strict
+             conversative_matched
+             
         tests:
           - not_null
           - accepted_values:
               values:
                 - matched_strict
-                - matched_fuzzy
-                - unmatched
+                - conversative_matched
 
       - name: safety_grade
         description: >

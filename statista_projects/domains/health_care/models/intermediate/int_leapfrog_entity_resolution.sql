@@ -50,7 +50,7 @@ resolved_candidates AS (
     UNION ALL
 
     ---------------------------------------------------------------------------
-    --FUZZY MATCH:
+    --Conservative MATCH:
     -- Only applies if CMS ID missing (cms_provider_number IS NULL)
     -- Requires BOTH:
     --    • Jaro-Winkler name similarity >= 90
@@ -63,7 +63,7 @@ resolved_candidates AS (
         statista_master_hospitals.hospital_id,
         0.6 as match_confidence, -- 0.6 signals “fallback match with moderate confidence,” 
         'jaro_winkler_city_state' as match_method,
-        'matched_fuzzy' as resolution_status
+        'conversative_matched' as resolution_status
     FROM leapfrog_grade
     JOIN statista_master_hospitals
         ON leapfrog_grade.cms_provider_number IS NULL                            -- CCN missing
@@ -89,8 +89,7 @@ priority_match AS (
             ORDER BY
                 CASE resolution_status
                     WHEN 'matched_strict' THEN 1
-                    WHEN 'matched_fuzzy'  THEN 2
-                    ELSE 3
+                    WHEN 'conversative_matched'  THEN 2
                 END,
                 match_confidence DESC
         ) = 1
