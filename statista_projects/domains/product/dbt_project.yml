@@ -1,8 +1,8 @@
-name: "health_care"
+name: "product"
 version: "1.0.0"
 
 # This setting configures which "profile" dbt uses for this project.
-profile: "health_care"
+profile: "product"
 
 # These configurations specify where dbt should look for different types of files.
 # The `model-paths` config, for example, states that models in this project can be
@@ -26,12 +26,12 @@ models:
   health_care:
     +materialized: view
     +meta:
-      owner: "@statistahealth_analytics"
+      owner: "@statistaproduct_analytics"
     marts:
       +materialized: table
       +access: public
       catalog: "{{ 'gold_production' if (target.name == 'production') else 'gold_staging' if (target.name == 'staging') else target.database }}"
-      schema: "{{ 'health_care' if (target.name == 'production' or target.name == 'staging') else target.schema }}"
+      schema: "{{ 'product' if (target.name == 'production' or target.name == 'staging') else target.schema }}"
 
 data_tests:
   health_care:
