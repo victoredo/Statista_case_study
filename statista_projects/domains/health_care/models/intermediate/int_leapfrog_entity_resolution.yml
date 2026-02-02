@@ -41,7 +41,6 @@ models:
         description: >
           Internal Statista hospital identifier resolved through entity
           resolution logic.
-          Null values indicate records that could not be safely matched.
         tests:
           - relationships:
               to: ref('stg_statista_global_hospitals')
