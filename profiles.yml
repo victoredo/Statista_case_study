@@ -37,4 +37,4 @@ elementary:
   outputs:
     production:
       <<: *production_service_account
-      schema: bia_elementary
+      schema: elementary
