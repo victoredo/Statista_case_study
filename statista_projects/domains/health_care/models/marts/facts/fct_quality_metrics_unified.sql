@@ -18,7 +18,7 @@ WITH all_vendor_data AS (
         {{
             dbt_utils.union_relations(
                 relations=[
-                    ref('stg_statista_global_hospitals'),
+                    ref('stg_statista_hospital_quality_metrics'),
                     ref('snapshot_leapfrog_metrics')
               
                 ],
